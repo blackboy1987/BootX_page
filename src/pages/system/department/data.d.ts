@@ -1,12 +1,12 @@
 /**
  * 列表展示的字段
  */
-export interface TableListItem {
-  id: number;
+export interface DepartmentItem {
+  id?: number;
   name?: string;
   order?: number;
   createdDate?: Date;
-  children?: TableListItem[];
+  children?: DepartmentItem[];
 }
 
 export interface DepartmentTree {

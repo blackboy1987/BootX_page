@@ -10,9 +10,11 @@ import { ColumnProps } from 'antd/es/table';
 import { StateType } from './model';
 import StandardTable from './components/StandardTable';
 
-import { TableListItem } from './data.d';
+import { DepartmentItem } from './data.d';
 
 import styles from './style.less';
+import CreateForm from "@/pages/system/department/components/CreateForm";
+import UpdateForm from "@/pages/system/department/components/UpdateForm";
 
 interface TableListProps {
   dispatch: Dispatch<any>;
@@ -21,11 +23,18 @@ interface TableListProps {
 }
 
 interface TableListState {
-  values: TableListItem;
+  addModalVisible:boolean;
+  record:DepartmentItem;
 }
 
 class TableList extends Component<TableListProps, TableListState> {
-  columns: ColumnProps<TableListItem>[] = [
+
+  state: TableListState = {
+    addModalVisible: false,
+    record:{}
+  };
+
+  columns: ColumnProps<DepartmentItem>[] = [
     {
       title: '名称',
       dataIndex: 'name',
@@ -56,14 +65,14 @@ class TableList extends Component<TableListProps, TableListState> {
     {
       title: '操作',
       width: 150,
-      render: (text, record: TableListItem) => (
+      render: (text, record: DepartmentItem) => (
         <Fragment>
-          <a onClick={() => history.push(`/system/department/edit/${record.id}`)}>编辑</a>
+          <a onClick={() => this.handleUpdateModalVisible(record,true,false)}>编辑</a>
           <Divider type="vertical" />
           {record.children && record.children.length > 0 ? null : (
             <>
               <Divider type="vertical" />
-              <a onClick={() => this.remove(record.id)}>删除</a>
+              <a onClick={() => this.remove(record.id || 0)}>删除</a>
             </>
           )}
         </Fragment>
@@ -114,11 +123,32 @@ class TableList extends Component<TableListProps, TableListState> {
     });
   };
 
+  handleModalVisible=(flag:boolean,refresh:boolean)=>{
+    this.setState({
+      addModalVisible:!!flag,
+    })
+    if(refresh){
+      this.list({});
+    }
+  }
+
+  handleUpdateModalVisible=(record:DepartmentItem,flag:boolean,refresh:boolean)=>{
+    this.setState({
+      record,
+      addModalVisible:!!flag,
+    });
+    if(refresh){
+      this.list({});
+    }
+  }
+
+
   render() {
     const {
       department: { data },
       loading,
     } = this.props;
+    const {addModalVisible,record} = this.state;
 
     return (
       <PageHeaderWrapper title={false}>
@@ -128,7 +158,7 @@ class TableList extends Component<TableListProps, TableListState> {
               <Button
                 disabled={loading}
                 icon={<PlusOutlined />}
-                onClick={() => history.push('/system/department/add')}
+                onClick={() => this.handleModalVisible(true,false)}
                 type="primary"
               >
                 新建
@@ -149,6 +179,12 @@ class TableList extends Component<TableListProps, TableListState> {
               data={data}
               columns={this.columns}
             />
+            {
+              addModalVisible && <CreateForm modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleModalVisible(modalVisible,refresh)} />
+            }
+            {
+              record && Object.keys(record).length>0 && addModalVisible && <UpdateForm values={record} modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleUpdateModalVisible({},modalVisible,refresh)} />
+            }
           </div>
         </Card>
       </PageHeaderWrapper>
