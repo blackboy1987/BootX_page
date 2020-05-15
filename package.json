@@ -4,23 +4,23 @@
   "private": true,
   "description": "An out-of-box UI solution for enterprise applications",
   "scripts": {
+    "postinstall": "umi g tmp",
     "analyze": "cross-env ANALYZE=1 umi build",
     "build": "umi build",
     "deploy": "npm run site && npm run gh-pages",
-    "dev": "npm run start:dev",
     "fetch:blocks": "pro fetch-blocks --branch=umi@3 && npm run prettier",
-    "gh-pages": "cp CNAME ./dist/ && gh-pages -d dist",
+    "gh-pages": "gh-pages -d dist",
     "i18n-remove": "pro i18n-remove --locale=zh-CN --write",
-    "postinstall": "umi g tmp",
     "lint": "umi g tmp && npm run lint:js && npm run lint:style && npm run lint:prettier",
+    "lint:prettier": "prettier --check \"**/*\" --end-of-line auto",
     "lint-staged": "lint-staged",
     "lint-staged:js": "eslint --ext .js,.jsx,.ts,.tsx ",
     "lint:fix": "eslint --fix --cache --ext .js,.jsx,.ts,.tsx --format=pretty ./src && npm run lint:style",
     "lint:js": "eslint --cache --ext .js,.jsx,.ts,.tsx --format=pretty ./src",
-    "lint:prettier": "prettier --check \"**/*\" --end-of-line auto",
     "lint:style": "stylelint --fix \"src/**/*.less\" --syntax less",
     "prettier": "prettier -c --write \"**/*\"",
     "start": "umi dev",
+    "dev": "npm run start:dev",
     "start:dev": "cross-env REACT_APP_ENV=dev MOCK=none umi dev",
     "start:no-mock": "cross-env MOCK=none umi dev",
     "start:no-ui": "cross-env UMI_UI=none umi dev",
@@ -32,44 +32,28 @@
     "test:component": "umi test ./src/components",
     "tsc": "tsc"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint-staged"
-    }
-  },
+  "husky": { "hooks": { "pre-commit": "npm run lint-staged" } },
   "lint-staged": {
     "**/*.less": "stylelint --syntax less",
     "**/*.{js,jsx,ts,tsx}": "npm run lint-staged:js",
-    "**/*.{js,jsx,tsx,ts,less,md,json}": [
-      "prettier --write"
-    ]
+    "**/*.{js,jsx,tsx,ts,less,md,json}": ["prettier --write"]
   },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 10"
-  ],
+  "browserslist": ["> 1%", "last 2 versions", "not ie <= 10"],
   "dependencies": {
-    "@ant-design/icons": "^4.1.0",
-    "@ant-design/pro-layout": "^5.0.10",
-    "@ant-design/pro-table": "^2.2.7",
-    "antd": "^4.2.2",
+    "@ant-design/icons": "^4.0.0",
+    "@ant-design/pro-layout": "^5.0.8",
+    "@ant-design/pro-table": "2.2.7",
+    "antd": "4.2.2",
     "classnames": "^2.2.6",
-    "dva": "^2.6.0-beta.20",
-    "mockjs": "^1.0.1-beta3",
-    "moment": "^2.24.0",
-    "numeral": "^2.0.6",
-    "nzh": "^1.0.3",
+    "lodash": "^4.17.11",
+    "moment": "^2.25.3",
     "omit.js": "^1.0.2",
     "path-to-regexp": "2.4.0",
-    "prop-types": "^15.5.10",
     "qs": "^6.9.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-fittext": "^1.0.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "react-helmet-async": "^1.0.4",
-    "react-router": "^4.3.1",
-    "umi": "^3.1.2",
+    "umi": "^3.1.4",
     "umi-request": "^1.2.19",
     "use-merge-value": "^1.0.1"
   },
@@ -81,12 +65,12 @@
     "@types/jest": "^25.1.0",
     "@types/lodash": "^4.14.144",
     "@types/qs": "^6.5.3",
-    "@types/react": "^16.9.34",
-    "@types/react-dom": "^16.9.7",
+    "@types/react": "^16.9.17",
+    "@types/react-dom": "^16.8.4",
     "@types/react-helmet": "^5.0.13",
     "@umijs/fabric": "^2.0.5",
     "@umijs/plugin-blocks": "^2.0.5",
-    "@umijs/preset-ant-design-pro": "^1.0.1",
+    "@umijs/preset-ant-design-pro": "^1.2.0",
     "@umijs/preset-react": "^1.4.8",
     "@umijs/preset-ui": "^2.0.9",
     "carlo": "^0.9.46",
@@ -104,20 +88,15 @@
     "mockjs": "^1.0.1-beta3",
     "prettier": "^2.0.1",
     "pro-download": "1.0.1",
-    "puppeteer-core": "^2.1.1",
+    "puppeteer-core": "^3.0.0",
     "stylelint": "^13.0.0"
   },
-  "engines": {
-    "node": ">=10.0.0"
-  },
+  "engines": { "node": ">=10.0.0" },
   "checkFiles": [
     "src/**/*.js*",
     "src/**/*.ts*",
     "src/**/*.less",
     "config/**/*.js*",
     "scripts/**/*.js"
-  ],
-  "resolutions": {
-    "**/moment": "2.24.0"
-  }
+  ]
 }
