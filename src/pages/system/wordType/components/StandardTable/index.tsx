@@ -65,7 +65,7 @@ class StandardTable extends Component<StandardTableProps<TableListItem>, Standar
   }
 
   handleRowSelectChange: TableRowSelection<TableListItem>['onChange'] = (
-    selectedRowKeys,
+    selectedRowKeys:string[],
     selectedRows: TableListItem[],
   ) => {
     const currySelectedRowKeys = selectedRowKeys as string[];

@@ -21,13 +21,14 @@ import { connect } from 'dva';
 import moment from 'moment';
 import { FormInstance } from 'antd/lib/form';
 import { getSiteInfo, parseFormValues } from '@/utils/common';
-import { history } from '@@/core/history';
 import { StateType } from './model';
 import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
 
 import { TableListItem } from './data.d';
 
 import styles from './style.less';
+import CreateForm from "@/pages/system/wordType/components/CreateForm";
+import UpdateForm from "@/pages/system/wordType/components/UpdateForm";
 
 const FormItem = Form.Item;
 
@@ -39,13 +40,17 @@ interface TableListProps {
 
 interface TableListState {
   selectedRows: TableListItem[];
+  addModalVisible:boolean;
+  record:TableListItem;
 }
 
 class TableList extends Component<TableListProps, TableListState> {
-  searchForm = React.createRef(FormInstance);
+  formRef = React.createRef<FormInstance>();
 
   state: TableListState = {
     selectedRows: [],
+    addModalVisible: false,
+    record:{}
   };
 
   columns: StandardTableColumnProps[] = [
@@ -76,7 +81,7 @@ class TableList extends Component<TableListProps, TableListState> {
       width: 100,
       render: (text, record: TableListItem) => (
         <Fragment>
-          <a onClick={() => history.push(`/system/wordType/edit/${record.id}`)}>编辑</a>
+          <a onClick={() => this.handleUpdateModalVisible(record,true,false)}>编辑</a>
           <Divider type="vertical" />
           <a onClick={() => this.update(record, 'remove')}>删除</a>
         </Fragment>
@@ -159,9 +164,9 @@ class TableList extends Component<TableListProps, TableListState> {
 
   renderSimpleForm = () => {
     return (
-      <Form ref={this.searchForm} onFinish={this.handleSearch}>
+      <Form ref={this.formRef} onFinish={this.handleSearch}>
         <Row gutter={16}>
-          <Col md={5}>
+          <Col md={8}>
             <FormItem label="分类名" name="name">
               <Input placeholder="请输入" />
             </FormItem>
@@ -177,7 +182,7 @@ class TableList extends Component<TableListProps, TableListState> {
           </Col>
           <Col md={8}>
             <FormItem label="添加时间" name="rangeDate">
-              <DatePicker.RangePicker separator="~" />
+              <DatePicker.RangePicker separator="~" style={{width:'100%'}} />
             </FormItem>
           </Col>
           <Col md={2}>
@@ -192,14 +197,32 @@ class TableList extends Component<TableListProps, TableListState> {
     );
   };
 
+  handleModalVisible=(flag:boolean,refresh:boolean)=>{
+    this.setState({
+      addModalVisible:!!flag,
+    })
+    if(refresh){
+      this.list({});
+    }
+  }
+
+  handleUpdateModalVisible=(record:TableListItem,flag:boolean,refresh:boolean)=>{
+    this.setState({
+      record,
+      addModalVisible:!!flag,
+    });
+    if(refresh){
+      this.list({});
+    }
+  }
+
   render() {
     const {
       wordType: { data },
       loading,
     } = this.props;
 
-    const { selectedRows } = this.state;
-
+    const { selectedRows,addModalVisible,record} = this.state;
     return (
       <PageHeaderWrapper title={false}>
         <Card bordered={false}>
@@ -209,7 +232,7 @@ class TableList extends Component<TableListProps, TableListState> {
               <Button
                 disabled={loading}
                 icon={<PlusOutlined />}
-                onClick={() => history.push('/system/wordType/add')}
+                onClick={() => this.handleModalVisible(true,false)}
                 type="primary"
               >
                 新建
@@ -235,6 +258,12 @@ class TableList extends Component<TableListProps, TableListState> {
             />
           </div>
         </Card>
+        {
+          addModalVisible && <CreateForm modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleModalVisible(modalVisible,refresh)} />
+        }
+        {
+          record && Object.keys(record).length>0 && addModalVisible && <UpdateForm values={record} modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleUpdateModalVisible({},modalVisible,refresh)} />
+        }
       </PageHeaderWrapper>
     );
   }

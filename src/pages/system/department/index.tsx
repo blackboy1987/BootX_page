@@ -2,7 +2,7 @@ import { Button, Card, Tag, Divider, Modal, message } from 'antd';
 import { PlusOutlined, ReloadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import React, { Component, Fragment } from 'react';
 
-import { Dispatch, history } from 'umi';
+import { Dispatch } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { connect } from 'dva';
 import moment from 'moment';
@@ -179,14 +179,14 @@ class TableList extends Component<TableListProps, TableListState> {
               data={data}
               columns={this.columns}
             />
-            {
-              addModalVisible && <CreateForm modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleModalVisible(modalVisible,refresh)} />
-            }
-            {
-              record && Object.keys(record).length>0 && addModalVisible && <UpdateForm values={record} modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleUpdateModalVisible({},modalVisible,refresh)} />
-            }
           </div>
         </Card>
+        {
+          addModalVisible && <CreateForm modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleModalVisible(modalVisible,refresh)} />
+        }
+        {
+          record && Object.keys(record).length>0 && addModalVisible && <UpdateForm values={record} modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleUpdateModalVisible({},modalVisible,refresh)} />
+        }
       </PageHeaderWrapper>
     );
   }

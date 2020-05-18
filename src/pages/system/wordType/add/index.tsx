@@ -91,31 +91,7 @@ class CreateFrom extends Component<CreateFromProps, CreateFromState> {
             <FormItem name="id" style={{ display: 'none' }}>
               <Input type="hidden" />
             </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="分类名"
-              name="name"
-              rules={[
-                {
-                  required: true,
-                  message: '必填',
-                },
-              ]}
-            >
-              <Input />
-            </FormItem>
-            <FormItem {...formItemLayout} label="描述" name="description">
-              <Input.TextArea autoSize={{ minRows: 4, maxRows: 4 }} />
-            </FormItem>
-            <FormItem {...formItemLayout} label="设置" style={{ marginBottom: 0 }}>
-              <FormItem
-                name="isEnabled"
-                valuePropName="checked"
-                style={{ display: 'inline-block', width: 'calc(15% - 8px)' }}
-              >
-                <Checkbox>启用</Checkbox>
-              </FormItem>
-            </FormItem>
+
             <FormItem {...submitFormLayout}>
               <Button type="primary" htmlType="submit" loading={submitting}>
                 保存
