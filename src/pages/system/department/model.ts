@@ -2,11 +2,11 @@ import { AnyAction, Reducer } from 'umi';
 import { EffectsCommandMap } from 'dva';
 import { list, save, tree, edit, remove } from './service';
 
-import { TableListItem } from './data.d';
+import { DepartmentItem } from './data.d';
 
 export interface StateType {
-  data: TableListItem[];
-  value?: TableListItem;
+  data: DepartmentItem[];
+  value?: DepartmentItem;
 }
 
 export type Effect = (
