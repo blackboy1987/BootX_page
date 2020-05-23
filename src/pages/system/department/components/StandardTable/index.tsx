@@ -2,17 +2,17 @@ import { Table } from 'antd';
 import { ColumnProps, TableProps } from 'antd/es/table';
 import React, { Component } from 'react';
 
-import { TableListItem } from '../../data.d';
+import { DepartmentItem } from '../../data.d';
 import styles from './index.less';
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 export interface StandardTableProps<T> extends Omit<TableProps<T>, 'columns'> {
-  columns: ColumnProps<TableListItem>[];
-  data: TableListItem[];
+  columns: ColumnProps<DepartmentItem>[];
+  data: DepartmentItem[];
 }
 
-const StandardTable: React.FC<Component<StandardTableProps<TableListItem>>> = ({
+const StandardTable: React.FC<Component<StandardTableProps<DepartmentItem>>> = ({
   data = [],
   rowKey,
   ...rest
