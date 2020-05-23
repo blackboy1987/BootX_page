@@ -1,34 +1,32 @@
-import React, {useEffect, useState} from 'react';
-import {Modal, Form, Input, message, TreeSelect, InputNumber, Checkbox} from "antd";
-import {Dispatch,connect} from 'umi';
-import {DepartmentTree,DepartmentItem} from "@/pages/system/department/data";
-import {StateType} from "@/pages/system/department/model";
-import {TableListItem} from "@/pages/system/admin/data";
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, message, TreeSelect, InputNumber, Checkbox } from 'antd';
+import { Dispatch, connect } from 'umi';
+import { DepartmentTree, DepartmentItem } from '@/pages/system/department/data';
+import { StateType } from '@/pages/system/department/model';
+import { TableListItem } from '@/pages/system/admin/data';
 
 const FormItem = Form.Item;
 
 interface UpdateFormProps {
-  modalVisible:boolean;
-  onCancel:(modalVisible:boolean,refresh:boolean)=>void;
+  modalVisible: boolean;
+  onCancel: (modalVisible: boolean, refresh: boolean) => void;
   dispatch: Dispatch<any>;
-  values:DepartmentItem;
+  values: DepartmentItem;
 }
 
 interface ConnectState {
-  department:StateType;
+  department: StateType;
   loading: {
     models: { [key: string]: boolean };
   };
 }
 
-const UpdateForm:React.FC<UpdateFormProps> = (props) =>{
+const UpdateForm: React.FC<UpdateFormProps> = (props) => {
   const [form] = Form.useForm();
-  const {
-    dispatch,
-  } = props;
+  const { dispatch } = props;
 
-  const { modalVisible, onCancel,values } = props;
-  const [departmentTree,setDepartmentTree] = useState<DepartmentTree[]>([]);
+  const { modalVisible, onCancel, values } = props;
+  const [departmentTree, setDepartmentTree] = useState<DepartmentTree[]>([]);
 
   const formItemLayout = {
     labelCol: {
@@ -54,16 +52,15 @@ const UpdateForm:React.FC<UpdateFormProps> = (props) =>{
     });
   };
 
-
   useEffect(() => {
     if (dispatch) {
       dispatch({
         type: 'department/tree',
         callback: (response: DepartmentTree[]) => {
-          setDepartmentTree(response)
+          setDepartmentTree(response);
         },
       });
-      if(values&&values.id){
+      if (values && values.id) {
         dispatch({
           type: 'department/edit',
           payload: values,
@@ -77,36 +74,40 @@ const UpdateForm:React.FC<UpdateFormProps> = (props) =>{
     }
   }, []);
 
-  const save=()=>{
-    form.validateFields().then(values => {
-      if (dispatch) {
-        dispatch({
-          type: 'department/save',
-          payload:values,
-          callback: (response: { type: string; content: string }) => {
-            const { type, content } = response;
-            if (type === 'success') {
-              onCancel(false,true);
-            } else {
-              message.error(content);
-            }
-          },
-        });
-      }
-    }).catch(info => {
-      console.log('Validate Failed:', info);
-    });
-  }
-
+  const save = () => {
+    form
+      .validateFields()
+      .then((formValues) => {
+        if (dispatch) {
+          dispatch({
+            type: 'department/save',
+            payload: formValues,
+            callback: (response: { type: string; content: string }) => {
+              const { type, content } = response;
+              if (type === 'success') {
+                onCancel(false, true);
+              } else {
+                message.error(content);
+              }
+            },
+          });
+        }
+      })
+      .catch((info) => {
+        console.log('Validate Failed:', info);
+      });
+  };
 
   return (
     <Modal
       destroyOnClose
       maskClosable={false}
-      title='新建部门'
+      title="新建部门"
       visible={modalVisible}
-      onCancel={() => onCancel(false,false)}
+      onCancel={() => onCancel(false, false)}
       onOk={save}
+      okText="确定"
+      cancelText="取消"
     >
       <Form
         form={form}
@@ -160,7 +161,7 @@ const UpdateForm:React.FC<UpdateFormProps> = (props) =>{
       </Form>
     </Modal>
   );
-}
+};
 export default connect(({ department, loading }: ConnectState) => ({
   department,
   loading: loading.models.department,
