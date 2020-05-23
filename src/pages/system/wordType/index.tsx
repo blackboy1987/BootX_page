@@ -20,14 +20,14 @@ import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import moment from 'moment';
 import { FormInstance } from 'antd/lib/form';
 import { getSiteInfo, parseFormValues } from '@/utils/common';
+import CreateForm from '@/pages/system/wordType/components/CreateForm';
+import UpdateForm from '@/pages/system/wordType/components/UpdateForm';
 import { StateType } from './model';
 import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
 
 import { TableListItem } from './data.d';
 
 import styles from './style.less';
-import CreateForm from '@/pages/system/wordType/components/CreateForm';
-import UpdateForm from '@/pages/system/wordType/components/UpdateForm';
 
 const FormItem = Form.Item;
 

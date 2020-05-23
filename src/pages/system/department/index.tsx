@@ -6,14 +6,14 @@ import { Dispatch, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import moment from 'moment';
 import { ColumnProps } from 'antd/es/table';
+import CreateForm from '@/pages/system/department/components/CreateForm';
+import UpdateForm from '@/pages/system/department/components/UpdateForm';
 import { StateType } from './model';
 import StandardTable from './components/StandardTable';
 
 import { DepartmentItem } from './data.d';
 
 import styles from './style.less';
-import CreateForm from '@/pages/system/department/components/CreateForm';
-import UpdateForm from '@/pages/system/department/components/UpdateForm';
 
 interface TableListProps {
   dispatch: Dispatch<any>;
