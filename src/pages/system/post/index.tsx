@@ -5,43 +5,67 @@ import {
   ExclamationCircleOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
-import React, { Component, Fragment } from 'react';
-
-import { Dispatch } from 'umi';
+import React, { Component, Fragment, ReactText } from 'react';
+import { SorterResult } from 'antd/lib/table/interface';
+import { Dispatch, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
 import moment from 'moment';
 import { FormInstance } from 'antd/lib/form';
-import { parseFormValues } from '@/utils/common';
-import { history } from '@@/core/history';
+import {
+  handleStandardTableChange,
+  parseFormValues,
+  TreeNodeItem,
+  YPMessage,
+  YPResult,
+} from '@/utils/common';
 import MyAuthorized from '@/pages/MyAuthorized';
 import { StateType } from './model';
 import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
+import CreateForm from '@/pages/system/post/components/CreateForm';
 
-import { TableListItem } from './data.d';
+import { TableListItem, TableListPagination } from './data.d';
 
 import styles from './style.less';
+import TreeNode from '@/pages/components/TreeNode';
 
 const FormItem = Form.Item;
 
 interface TableListProps {
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   loading: boolean;
   post: StateType;
 }
 
 interface TableListState {
   selectedRows: TableListItem[];
+  addModalVisible: boolean;
+  updateModalVisible: boolean;
+  departmentTree: TreeNodeItem[];
+  record: TableListItem;
 }
 
 class TableList extends Component<TableListProps, TableListState> {
-  searchForm = React.createRef(FormInstance);
+  searchForm = React.createRef<FormInstance>();
 
   state: TableListState = {
     selectedRows: [],
+    addModalVisible: false,
+    updateModalVisible: false,
+    departmentTree: [],
+    record: {},
   };
 
   columns: StandardTableColumnProps[] = [
+    {
+      title: '部门',
+      dataIndex: 'departmentName',
+      width: 100,
+    },
+    {
+      title: '岗位名称',
+      dataIndex: 'name',
+      width: 100,
+    },
     {
       title: '岗位类型',
       dataIndex: 'level',
@@ -62,13 +86,9 @@ class TableList extends Component<TableListProps, TableListState> {
       },
     },
     {
-      title: '岗位名称',
-      dataIndex: 'name',
-      width: 100,
-    },
-    {
       title: '排序',
       dataIndex: 'order',
+      width: 50,
     },
     {
       title: '状态',
@@ -80,28 +100,26 @@ class TableList extends Component<TableListProps, TableListState> {
       title: '创建时间',
       dataIndex: 'gmtCreate',
       sorter: true,
-      width: 170,
+      width: 150,
       render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '操作',
-      width: 220,
+      width: 100,
       render: (text, record: TableListItem) => (
         <Fragment>
           <MyAuthorized
             authorizedType="a"
             authority={['/system/post/edit', '/system/post/update']}
-            onClick={() => history.push(`/system/post/edit/${record.id}`)}
+            onClick={() => this.handleUpdateModalVisible(record, true, false)}
             title="编辑"
             divider
           />
-
           <MyAuthorized
             authorizedType="a"
             authority={['/system/post/delete']}
             onClick={() => this.update(record, 'remove')}
             title="删除"
-            divider
           />
         </Fragment>
       ),
@@ -110,7 +128,20 @@ class TableList extends Component<TableListProps, TableListState> {
 
   componentDidMount() {
     this.list({});
+    this.departmentTree();
   }
+
+  departmentTree = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'post/departmentTree',
+      callback: (response: TreeNodeItem[]) => {
+        this.setState({
+          departmentTree: response,
+        });
+      },
+    });
+  };
 
   list = (params: {}) => {
     const { dispatch } = this.props;
@@ -127,7 +158,7 @@ class TableList extends Component<TableListProps, TableListState> {
 
   update = (record: TableListItem, type1: string, content1?: string) => {
     const root = this;
-    let ids: number[] = [];
+    let ids: (number | undefined)[] = [];
     if (!record.id) {
       const { selectedRows } = this.state;
       ids = [...selectedRows.map((item) => item.id)];
@@ -165,14 +196,10 @@ class TableList extends Component<TableListProps, TableListState> {
           payload: {
             ids,
           },
-          callback: (response: { type: string; content: string }) => {
-            const { type, content } = response;
-            if (type === 'success') {
-              message.success(content);
+          callback: (response: YPResult) => {
+            YPMessage(response, () => {
               root.list({});
-            } else {
-              message.error(content);
-            }
+            });
           },
         });
       },
@@ -195,19 +222,9 @@ class TableList extends Component<TableListProps, TableListState> {
     return (
       <Form ref={this.searchForm} onFinish={this.handleSearch}>
         <Row gutter={16}>
-          <Col md={5}>
+          <Col md={9}>
             <FormItem label="岗位名称" name="name">
               <Input placeholder="请输入" />
-            </FormItem>
-          </Col>
-          <Col md={5}>
-            <FormItem label="岗位等级" name="level">
-              <Select>
-                <Select.Option value={1}>高层</Select.Option>
-                <Select.Option value={2}>中层</Select.Option>
-                <Select.Option value={3}>基层</Select.Option>
-                <Select.Option value={4}>其他</Select.Option>
-              </Select>
             </FormItem>
           </Col>
           <Col md={4}>
@@ -219,7 +236,7 @@ class TableList extends Component<TableListProps, TableListState> {
               </Select>
             </FormItem>
           </Col>
-          <Col md={8}>
+          <Col md={9}>
             <FormItem label="添加时间" name="rangeDate">
               <DatePicker.RangePicker separator="~" />
             </FormItem>
@@ -236,58 +253,130 @@ class TableList extends Component<TableListProps, TableListState> {
     );
   };
 
+  handleModalVisible = (flag: boolean, refresh: boolean) => {
+    this.setState({
+      addModalVisible: !!flag,
+    });
+    if (refresh) {
+      this.list({});
+    }
+  };
+
+  handleUpdateModalVisible = (record: TableListItem, flag: boolean, refresh: boolean) => {
+    this.setState({
+      record,
+      updateModalVisible: !!flag,
+    });
+    if (refresh) {
+      this.list({});
+    }
+  };
+
+  handleStandardTableChange = (
+    pagination: Partial<TableListPagination>,
+    filtersArg: Record<keyof TableListItem, string[]>,
+    sorter: SorterResult<TableListItem>,
+  ) => {
+    this.list({
+      ...handleStandardTableChange(pagination, filtersArg, sorter),
+      ...parseFormValues(this.searchForm.current?.getFieldValue || {}),
+    });
+  };
+
+  onSelect = (selectedKeys: ReactText[]) => {
+    this.list({
+      departmentId: selectedKeys && selectedKeys.join(','),
+    });
+  };
+
   render() {
     const {
       post: { data },
       loading,
     } = this.props;
 
-    const { selectedRows } = this.state;
+    const {
+      addModalVisible,
+      record,
+      selectedRows,
+      updateModalVisible,
+      departmentTree,
+    } = this.state;
 
     return (
       <PageHeaderWrapper title={false}>
-        <Card bordered={false}>
-          <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderSimpleForm()}</div>
-            <div className={styles.tableListOperator}>
-              <Button
-                disabled={loading}
-                icon={<PlusOutlined />}
-                onClick={() => history.push('/system/post/add')}
-                type="primary"
-              >
-                新建
-              </Button>
-              <Button
-                disabled={loading}
-                icon={<ReloadOutlined />}
-                type="primary"
-                onClick={() => this.list({})}
-              >
-                刷新
-              </Button>
-              <MyAuthorized
-                authorizedType="button"
-                type="danger"
-                authority={['/system/post/delete']}
-                title="删除"
-                disabled={selectedRows.length === 0}
-                icon={<DeleteOutlined />}
-                onClick={() => this.update({}, 'remove')}
+        <Row>
+          <Col span={6}>
+            <Card bordered={false}>
+              <TreeNode
+                title="部门列表"
+                items={departmentTree}
+                onSelect={(selectedKeys: ReactText[]) => this.onSelect(selectedKeys)}
               />
-            </div>
-            <StandardTable
-              bordered
-              size="small"
-              selectedRows={selectedRows}
-              loading={loading}
-              data={data}
-              columns={this.columns}
-              onSelectRow={this.handleSelectRows}
-              onChange={this.handleStandardTableChange}
-            />
-          </div>
-        </Card>
+            </Card>
+          </Col>
+          <Col span={18}>
+            <Card bordered={false}>
+              <div className={styles.tableList}>
+                <div className={styles.tableListForm}>{this.renderSimpleForm()}</div>
+                <div className={styles.tableListOperator}>
+                  <Button
+                    disabled={loading}
+                    icon={<PlusOutlined />}
+                    onClick={() => this.handleModalVisible(true, false)}
+                    type="primary"
+                  >
+                    新建
+                  </Button>
+                  <Button
+                    disabled={loading}
+                    icon={<ReloadOutlined />}
+                    type="primary"
+                    onClick={() => this.list({})}
+                  >
+                    刷新
+                  </Button>
+                  <MyAuthorized
+                    authorizedType="button"
+                    type="danger"
+                    authority={['/system/post/delete']}
+                    title="删除"
+                    disabled={selectedRows.length === 0}
+                    icon={<DeleteOutlined />}
+                    onClick={() => this.update({}, 'remove')}
+                  />
+                </div>
+                <StandardTable
+                  bordered
+                  size="small"
+                  selectedRows={selectedRows}
+                  loading={loading}
+                  data={data || { list: [], pagination: false }}
+                  columns={this.columns}
+                  onSelectRow={this.handleSelectRows}
+                  onChange={this.handleStandardTableChange}
+                />
+              </div>
+            </Card>
+          </Col>
+        </Row>
+        {addModalVisible && (
+          <CreateForm
+            modalVisible={addModalVisible}
+            onCancel={(modalVisible: boolean, refresh: boolean) =>
+              this.handleModalVisible(modalVisible, refresh)
+            }
+          />
+        )}
+        {record && Object.keys(record).length > 0 && updateModalVisible && (
+          <CreateForm
+            record={record}
+            modalVisible={updateModalVisible}
+            onCancel={(modalVisible: boolean, refresh: boolean) =>
+              this.handleUpdateModalVisible({}, modalVisible, refresh)
+            }
+          />
+        )}
       </PageHeaderWrapper>
     );
   }
