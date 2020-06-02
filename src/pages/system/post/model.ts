@@ -1,7 +1,7 @@
-import { AnyAction, Reducer } from 'umi';
-import { EffectsCommandMap } from 'dva';
+import { Effect, Reducer } from 'umi';
+
 import { TableListData } from '@/pages/system/post/data';
-import { list, save, tree, edit, remove } from './service';
+import { list, save, tree, edit, remove, departmentTree } from './service';
 
 import { TableListItem } from './data.d';
 
@@ -9,11 +9,6 @@ export interface StateType {
   data?: TableListData;
   value?: TableListItem;
 }
-
-export type Effect = (
-  action: AnyAction,
-  effects: EffectsCommandMap & { select: <T>(func: (state: StateType) => T) => T },
-) => void;
 
 export interface ModelType {
   namespace: string;
@@ -24,6 +19,7 @@ export interface ModelType {
     tree: Effect;
     edit: Effect;
     remove: Effect;
+    departmentTree: Effect;
   };
   reducers: {
     listInfo: Reducer<StateType>;
@@ -72,17 +68,25 @@ const Model: ModelType = {
         callback(response);
       }
     },
+    *departmentTree({ payload, callback }, { call }) {
+      const response = yield call(departmentTree, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
   },
 
   reducers: {
     listInfo(state, action) {
-      const { data = [], total = 0, current = 1, pageSize = 0 } = action.payload;
+      const {
+        data: { content = [], total = 0, pageNumber = 1, pageSize = 0 },
+      } = action.payload;
       return {
         ...state,
         data: {
-          list: data,
+          list: content,
           pagination: {
-            current,
+            current: pageNumber,
             pageSize,
             total,
           },
