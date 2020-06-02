@@ -1,32 +1,30 @@
-import React, {useEffect, useState} from 'react';
-import {Modal, Form, Input, message, TreeSelect, InputNumber, Checkbox} from "antd";
-import {Dispatch,connect} from 'umi';
-import {DepartmentTree} from "@/pages/system/department/data";
-import {StateType} from "@/pages/system/department/model";
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, message, TreeSelect, InputNumber, Checkbox } from 'antd';
+import { Dispatch, connect } from 'umi';
+import { DepartmentTree } from '@/pages/system/department/data';
+import { StateType } from '@/pages/system/department/model';
 
 const FormItem = Form.Item;
 
 interface AddFormProps {
-  modalVisible:boolean;
-  onCancel:(modalVisible:boolean,refresh:boolean)=>void;
-  dispatch: Dispatch<any>;
+  modalVisible: boolean;
+  onCancel: (modalVisible: boolean, refresh: boolean) => void;
+  dispatch: Dispatch;
 }
 
 interface ConnectState {
-  department:StateType;
+  department: StateType;
   loading: {
     models: { [key: string]: boolean };
   };
 }
 
-const CreateForm:React.FC<AddFormProps> = (props) =>{
+const CreateForm: React.FC<AddFormProps> = (props) => {
   const [form] = Form.useForm();
-  const {
-    dispatch,
-  } = props;
+  const { dispatch } = props;
 
   const { modalVisible, onCancel } = props;
-  const [departmentTree,setDepartmentTree] = useState<DepartmentTree[]>([]);
+  const [departmentTree, setDepartmentTree] = useState<DepartmentTree[]>([]);
 
   const formItemLayout = {
     labelCol: {
@@ -52,47 +50,48 @@ const CreateForm:React.FC<AddFormProps> = (props) =>{
     });
   };
 
-
   useEffect(() => {
     if (dispatch) {
       dispatch({
         type: 'department/tree',
         callback: (response: DepartmentTree[]) => {
-          setDepartmentTree(response)
+          setDepartmentTree(response);
         },
       });
     }
   }, []);
 
-  const save=()=>{
-    form.validateFields().then(values => {
-      if (dispatch) {
-        dispatch({
-          type: 'department/save',
-          payload:values,
-          callback: (response: { type: string; content: string }) => {
-            const { type, content } = response;
-            if (type === 'success') {
-              onCancel(false,true);
-            } else {
-              message.error(content);
-            }
-          },
-        });
-      }
-    }).catch(info => {
-      console.log('Validate Failed:', info);
-    });
-  }
-
+  const save = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        if (dispatch) {
+          dispatch({
+            type: 'department/save',
+            payload: values,
+            callback: (response: { type: string; content: string }) => {
+              const { type, content } = response;
+              if (type === 'success') {
+                onCancel(false, true);
+              } else {
+                message.error(content);
+              }
+            },
+          });
+        }
+      })
+      .catch((info) => {
+        console.log('Validate Failed:', info);
+      });
+  };
 
   return (
     <Modal
       destroyOnClose
       maskClosable={false}
-      title='新建部门'
+      title="新建部门"
       visible={modalVisible}
-      onCancel={() => onCancel(false,false)}
+      onCancel={() => onCancel(false, false)}
       onOk={save}
     >
       <Form
@@ -147,7 +146,7 @@ const CreateForm:React.FC<AddFormProps> = (props) =>{
       </Form>
     </Modal>
   );
-}
+};
 export default connect(({ department, loading }: ConnectState) => ({
   department,
   loading: loading.models.department,
