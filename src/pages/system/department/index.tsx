@@ -2,9 +2,8 @@ import { Button, Card, Tag, Divider, Modal, message } from 'antd';
 import { PlusOutlined, ReloadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import React, { Component, Fragment } from 'react';
 
-import { Dispatch } from 'umi';
+import { Dispatch, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
 import moment from 'moment';
 import { ColumnProps } from 'antd/es/table';
 import { StateType } from './model';
@@ -13,25 +12,26 @@ import StandardTable from './components/StandardTable';
 import { DepartmentItem } from './data.d';
 
 import styles from './style.less';
-import CreateForm from "@/pages/system/department/components/CreateForm";
-import UpdateForm from "@/pages/system/department/components/UpdateForm";
+import CreateForm from '@/pages/system/department/components/CreateForm';
+import UpdateForm from '@/pages/system/department/components/UpdateForm';
 
 interface TableListProps {
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   loading: boolean;
   department: StateType;
 }
 
 interface TableListState {
-  addModalVisible:boolean;
-  record:DepartmentItem;
+  addModalVisible: boolean;
+  updateModalVisible: boolean;
+  record: DepartmentItem;
 }
 
 class TableList extends Component<TableListProps, TableListState> {
-
   state: TableListState = {
     addModalVisible: false,
-    record:{}
+    updateModalVisible: false,
+    record: {},
   };
 
   columns: ColumnProps<DepartmentItem>[] = [
@@ -67,7 +67,7 @@ class TableList extends Component<TableListProps, TableListState> {
       width: 150,
       render: (text, record: DepartmentItem) => (
         <Fragment>
-          <a onClick={() => this.handleUpdateModalVisible(record,true,false)}>编辑</a>
+          <a onClick={() => this.handleUpdateModalVisible(record, true, false)}>编辑</a>
           <Divider type="vertical" />
           {record.children && record.children.length > 0 ? null : (
             <>
@@ -123,32 +123,31 @@ class TableList extends Component<TableListProps, TableListState> {
     });
   };
 
-  handleModalVisible=(flag:boolean,refresh:boolean)=>{
+  handleModalVisible = (flag: boolean, refresh: boolean) => {
     this.setState({
-      addModalVisible:!!flag,
-    })
-    if(refresh){
+      addModalVisible: !!flag,
+    });
+    if (refresh) {
       this.list({});
     }
-  }
+  };
 
-  handleUpdateModalVisible=(record:DepartmentItem,flag:boolean,refresh:boolean)=>{
+  handleUpdateModalVisible = (record: DepartmentItem, flag: boolean, refresh: boolean) => {
     this.setState({
       record,
-      addModalVisible:!!flag,
+      updateModalVisible: !!flag,
     });
-    if(refresh){
+    if (refresh) {
       this.list({});
     }
-  }
-
+  };
 
   render() {
     const {
       department: { data },
       loading,
     } = this.props;
-    const {addModalVisible,record} = this.state;
+    const { addModalVisible, record, updateModalVisible } = this.state;
 
     return (
       <PageHeaderWrapper title={false}>
@@ -158,7 +157,7 @@ class TableList extends Component<TableListProps, TableListState> {
               <Button
                 disabled={loading}
                 icon={<PlusOutlined />}
-                onClick={() => this.handleModalVisible(true,false)}
+                onClick={() => this.handleModalVisible(true, false)}
                 type="primary"
               >
                 新建
@@ -181,12 +180,23 @@ class TableList extends Component<TableListProps, TableListState> {
             />
           </div>
         </Card>
-        {
-          addModalVisible && <CreateForm modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleModalVisible(modalVisible,refresh)} />
-        }
-        {
-          record && Object.keys(record).length>0 && addModalVisible && <UpdateForm values={record} modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleUpdateModalVisible({},modalVisible,refresh)} />
-        }
+        {addModalVisible && (
+          <CreateForm
+            modalVisible={addModalVisible}
+            onCancel={(modalVisible: boolean, refresh: boolean) =>
+              this.handleModalVisible(modalVisible, refresh)
+            }
+          />
+        )}
+        {record && Object.keys(record).length > 0 && updateModalVisible && (
+          <UpdateForm
+            values={record}
+            modalVisible={updateModalVisible}
+            onCancel={(modalVisible: boolean, refresh: boolean) =>
+              this.handleUpdateModalVisible({}, modalVisible, refresh)
+            }
+          />
+        )}
       </PageHeaderWrapper>
     );
   }
