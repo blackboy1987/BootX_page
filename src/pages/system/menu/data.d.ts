@@ -1,36 +1,27 @@
 /**
  * 列表展示的字段
  */
-export interface TableListItem {
-  id?: number;
+import {
+  CommonTableListData,
+  CommonTableListItem,
+  CommonTableListPagination,
+  CommonTableListParams,
+} from '@/utils/interface/common.js';
+
+export interface TableListItem extends CommonTableListItem {
   isEnabled?: boolean;
   name?: string;
-  mobile?: string;
-  username?: string;
-  gmtCreate?: Date;
-  lastModifiedDate?: Date;
-  roleNames?: [];
-}
-
-/**
- * 表单展示的数据
- */
-export interface MenuTree {
-  id: number;
-  name: string;
-  children: MenuTree[];
+  parentId?: number;
+  parentName?: string;
+  order?: number;
 }
 
 /**
  * 分页数据
  */
-export interface TableListPagination {
-  total: number;
-  pageSize: number;
-  current: number;
-}
+export interface TableListPagination extends CommonTableListPagination {}
 
-export interface TableListData {
+export interface TableListData extends CommonTableListData {
   list: TableListItem[];
   pagination: Partial<TableListPagination>;
 }
@@ -38,14 +29,4 @@ export interface TableListData {
 /**
  * 搜索的数据
  */
-export interface TableListParams {
-  id: null;
-  sorter: string;
-  status: string;
-  name: string;
-  current: number;
-  currentPage: number;
-  pageNumber: number;
-  orderProperty: string;
-  orderDirection: string;
-}
+export interface TableListParams extends CommonTableListParams {}
