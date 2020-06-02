@@ -1,31 +1,37 @@
-import { Button, Card, Col, Row, message, Tag, Modal, Divider, Tree } from 'antd';
+import { Button, Card, Col, Row, message, Tag, Modal, Divider } from 'antd';
 import { PlusOutlined, ReloadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, ReactText } from 'react';
 
-import { Dispatch } from 'umi';
+import { Dispatch, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
 import moment from 'moment';
-import { getSiteInfo } from '@/utils/common';
-import { history } from '@@/core/history';
 import { StateType } from './model';
 import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
 
-import { MenuTree, TableListItem } from './data.d';
+import { TableListItem } from './data.d';
+
+import CreateForm from '@/pages/system/menu/components/CreateForm';
 
 import styles from './style.less';
+import { handleStandardTableChange, TreeNodeItem } from '@/utils/common';
+import TreeNode from '@/pages/components/TreeNode';
+import { TableListPagination } from '@/pages/system/post/data';
+import { SorterResult } from 'antd/lib/table/interface';
 
 interface TableListProps {
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   loading: boolean;
   menu: StateType;
 }
 
 interface TableListState {
   selectedRows: TableListItem[];
-  menuTree: MenuTree[];
+  menuTree: TreeNodeItem[];
   tableTitle: string;
   parentId: number | '';
+  addModalVisible: boolean;
+  updateModalVisible: boolean;
+  record: TableListItem;
 }
 
 class TableList extends Component<TableListProps, TableListState> {
@@ -34,6 +40,9 @@ class TableList extends Component<TableListProps, TableListState> {
     menuTree: [],
     tableTitle: '',
     parentId: '',
+    addModalVisible: false,
+    updateModalVisible: false,
+    record: {},
   };
 
   columns: StandardTableColumnProps[] = [
@@ -69,7 +78,7 @@ class TableList extends Component<TableListProps, TableListState> {
       width: 100,
       render: (text, record: TableListItem) => (
         <Fragment>
-          <a onClick={() => history.push(`/system/menu/edit/${record.id}`)}>编辑</a>
+          <a onClick={() => this.handleUpdateModalVisible(record, true, false)}>编辑</a>
           <Divider type="vertical" />
           <a onClick={() => this.update(record, 'remove')}>删除</a>
         </Fragment>
@@ -101,7 +110,7 @@ class TableList extends Component<TableListProps, TableListState> {
     const { dispatch } = this.props;
     dispatch({
       type: 'menu/tree',
-      callback: (response: MenuTree[]) => {
+      callback: (response: TreeNodeItem[]) => {
         this.setState({
           menuTree: response,
         });
@@ -117,9 +126,6 @@ class TableList extends Component<TableListProps, TableListState> {
       }
       if (type1 === 'enabled') {
         return '您正在执行账号启用操作';
-      }
-      if (type1 === 'reset') {
-        return `您正在执行账户重置密码操作，密码将重置为${getSiteInfo('defaultPassword')}！！！`;
       }
       if (type1 === 'disabled') {
         return '您正在执行账号禁用操作';
@@ -159,20 +165,17 @@ class TableList extends Component<TableListProps, TableListState> {
     });
   };
 
-  renderTree = (menuTree: MenuTree[]) => {
-    return menuTree.map((item) => {
-      if (item.children && item.children.length > 0) {
-        return (
-          <Tree.TreeNode key={item.id} title={item.name}>
-            {this.renderTree(item.children)}
-          </Tree.TreeNode>
-        );
-      }
-      return <Tree.TreeNode key={item.id} title={item.name} />;
+  handleStandardTableChange = (
+    pagination: Partial<TableListPagination>,
+    filtersArg: Record<keyof TableListItem, string[]>,
+    sorter: SorterResult<TableListItem>,
+  ) => {
+    this.list({
+      ...handleStandardTableChange(pagination, filtersArg, sorter),
     });
   };
 
-  onSelectTreeNode = (selectedKeys: string[], e: { selected: boolean; selectedNodes: any }) => {
+  onSelectTreeNode = (selectedKeys: ReactText[], e: { selected: boolean; selectedNodes: any }) => {
     const { selectedNodes } = e;
     this.list({
       parentId: selectedKeys.join(','),
@@ -191,24 +194,54 @@ class TableList extends Component<TableListProps, TableListState> {
     }
   };
 
+  handleModalVisible = (flag: boolean, refresh: boolean) => {
+    this.setState({
+      addModalVisible: !!flag,
+    });
+    if (refresh) {
+      this.list({});
+      this.tree();
+    }
+  };
+
+  handleUpdateModalVisible = (record: TableListItem, flag: boolean, refresh: boolean) => {
+    this.setState({
+      record,
+      updateModalVisible: !!flag,
+    });
+    if (refresh) {
+      this.list({});
+      this.tree();
+    }
+  };
+
   render() {
     const {
       menu: { data },
       loading,
     } = this.props;
 
-    const { selectedRows, menuTree, tableTitle } = this.state;
+    const {
+      addModalVisible,
+      record,
+      selectedRows,
+      updateModalVisible,
+      menuTree,
+      tableTitle,
+    } = this.state;
     return (
       <PageHeaderWrapper title={false}>
         <Card bordered={false}>
           <Row gutter={16}>
             <Col span={6}>
               <Card bordered={false} size="small">
-                <Tree showLine defaultExpandAll onSelect={this.onSelectTreeNode}>
-                  <Tree.TreeNode key="" title="全部菜单">
-                    {this.renderTree(menuTree)}
-                  </Tree.TreeNode>
-                </Tree>
+                <TreeNode
+                  title="菜单列表"
+                  items={menuTree}
+                  onSelect={(selectedKeys: ReactText[], e: any) =>
+                    this.onSelectTreeNode(selectedKeys, e)
+                  }
+                />
               </Card>
             </Col>
             <Col span={18}>
@@ -222,7 +255,7 @@ class TableList extends Component<TableListProps, TableListState> {
                     <Button
                       disabled={loading}
                       icon={<PlusOutlined />}
-                      onClick={() => history.push('/system/menu/add')}
+                      onClick={() => this.handleModalVisible(true, false)}
                       type="primary"
                     >
                       新建
@@ -251,6 +284,23 @@ class TableList extends Component<TableListProps, TableListState> {
             </Col>
           </Row>
         </Card>
+        {addModalVisible && (
+          <CreateForm
+            modalVisible={addModalVisible}
+            onCancel={(modalVisible: boolean, refresh: boolean) =>
+              this.handleModalVisible(modalVisible, refresh)
+            }
+          />
+        )}
+        {record && Object.keys(record).length > 0 && updateModalVisible && (
+          <CreateForm
+            record={record}
+            modalVisible={updateModalVisible}
+            onCancel={(modalVisible: boolean, refresh: boolean) =>
+              this.handleUpdateModalVisible({}, modalVisible, refresh)
+            }
+          />
+        )}
       </PageHeaderWrapper>
     );
   }
