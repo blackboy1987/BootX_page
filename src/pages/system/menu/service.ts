@@ -3,7 +3,7 @@ import constants from '@/utils/constants';
 import { TableListParams } from './data.d';
 
 export async function list(params: TableListParams) {
-  return request(`${constants.baseUrl}/menu/list`, {
+  return request(`${constants.authUrl}menu/list`, {
     method: 'POST',
     data: {
       ...params,
@@ -13,14 +13,14 @@ export async function list(params: TableListParams) {
 
 export async function save(params: TableListParams) {
   if (params.id) {
-    return request(`${constants.baseUrl}/menu/update`, {
+    return request(`${constants.authUrl}menu/update`, {
       method: 'POST',
       data: {
         ...params,
       },
     });
   }
-  return request(`${constants.baseUrl}/menu/save`, {
+  return request(`${constants.authUrl}menu/save`, {
     method: 'POST',
     data: {
       ...params,
@@ -29,7 +29,7 @@ export async function save(params: TableListParams) {
 }
 
 export async function edit(params: TableListParams) {
-  return request(`${constants.baseUrl}/menu/edit`, {
+  return request(`${constants.authUrl}menu/edit`, {
     method: 'POST',
     data: {
       ...params,
@@ -38,7 +38,7 @@ export async function edit(params: TableListParams) {
 }
 
 export async function remove(params: TableListParams) {
-  return request(`${constants.baseUrl}/menu/delete`, {
+  return request(`${constants.authUrl}menu/delete`, {
     method: 'POST',
     data: {
       ...params,
@@ -47,7 +47,7 @@ export async function remove(params: TableListParams) {
 }
 
 export async function enabled(params: TableListParams) {
-  return request(`${constants.baseUrl}/menu/enabled`, {
+  return request(`${constants.authUrl}menu/enabled`, {
     method: 'POST',
     data: {
       ...params,
@@ -56,7 +56,7 @@ export async function enabled(params: TableListParams) {
 }
 
 export async function disabled(params: TableListParams) {
-  return request(`${constants.baseUrl}/menu/disabled`, {
+  return request(`${constants.authUrl}menu/disabled`, {
     method: 'POST',
     data: {
       ...params,
@@ -65,7 +65,7 @@ export async function disabled(params: TableListParams) {
 }
 
 export async function tree(params: TableListParams) {
-  return request(`${constants.baseUrl}/menu/tree`, {
+  return request(`${constants.authUrl}menu/tree`, {
     method: 'POST',
     data: {
       ...params,
