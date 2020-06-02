@@ -23,6 +23,7 @@ export interface CommonTableListData {
  * 搜索的数据
  */
 export interface CommonTableListParams {
+  id: number;
   pageNumber: number;
   pageSize: number;
   orderProperty: string | undefined;
