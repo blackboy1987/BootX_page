@@ -1,18 +1,13 @@
-import { AnyAction, Reducer } from 'umi';
-import { EffectsCommandMap } from 'dva';
+import { Effect, Reducer } from 'umi';
+
 import { list, edit, save, remove, disabled, enabled, menuTree } from './service';
 
 import { TableListData, TableListItem } from './data.d';
 
 export interface StateType {
   data?: TableListData;
-  value?: TableListItem;
+  values?: TableListItem;
 }
-
-export type Effect = (
-  action: AnyAction,
-  effects: EffectsCommandMap & { select: <T>(func: (state: StateType) => T) => T },
-) => void;
 
 export interface ModelType {
   namespace: string;
