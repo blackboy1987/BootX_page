@@ -8,7 +8,7 @@ import { TableListItem } from '@/pages/system/post/data';
 const FormItem = Form.Item;
 
 interface AddFormProps {
-  record: TableListItem;
+  record?: TableListItem;
   modalVisible: boolean;
   onCancel: (modalVisible: boolean, refresh: boolean) => void;
   dispatch: Dispatch;
