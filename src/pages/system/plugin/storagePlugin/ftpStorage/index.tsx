@@ -1,15 +1,14 @@
 import { Button, Card, Checkbox, Form, Input, message, InputNumber } from 'antd';
 import React, { Component } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
 import { FormInstance } from 'antd/lib/form';
-import { Link, Dispatch } from 'umi';
+import { Link, Dispatch, connect } from 'umi';
 
 const FormItem = Form.Item;
 
 interface BasicFormProps {
   submitting: boolean;
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
 }
 
 class BasicForm extends Component<BasicFormProps> {
