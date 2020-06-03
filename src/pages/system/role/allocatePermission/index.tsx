@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
-import { connect } from 'dva';
+import React, { Component, ReactText } from 'react';
 import { message, Modal, Tabs, Tree } from 'antd';
 import { FormInstance } from 'antd/lib/form';
-import { Dispatch, history } from 'umi';
+import { Dispatch, history, connect } from 'umi';
 import { TableListItem } from '../data';
 import { StateType } from '../model';
 
@@ -24,7 +23,7 @@ interface CreateFromProps {
   allocatePermissionRecord: TableListItem;
   onClose: () => void;
   submitting: boolean;
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   match: {
     params: {
       [key: string]: any;
@@ -139,7 +138,7 @@ class AllocationPermission extends Component<CreateFromProps, CreateFromState> {
     });
   };
 
-  onCheck = (type: string, checkedKeys: any[]) => {
+  onCheck = (type: string, checkedKeys: ReactText[]) => {
     const { permissionList } = this.state;
     const newPermissionList = { ...permissionList };
     newPermissionList[`${type}`] = checkedKeys;
@@ -201,7 +200,7 @@ class AllocationPermission extends Component<CreateFromProps, CreateFromState> {
               showLine
               checkable
               multiple
-              onCheck={(checkedKeys: any[]) => this.onCheck('menuList', checkedKeys)}
+              onCheck={(checkedKeys: ReactText[]) => this.onCheck('menuList', checkedKeys)}
             >
               {this.renderTree1(menuTree)}
             </Tree>
@@ -213,7 +212,7 @@ class AllocationPermission extends Component<CreateFromProps, CreateFromState> {
               showLine
               checkable
               multiple
-              onCheck={(checkedKeys: any[]) => this.onCheck('buttonList', checkedKeys)}
+              onCheck={(checkedKeys: ReactText[]) => this.onCheck('buttonList', checkedKeys)}
             >
               {this.renderTree(menuTree, 0)}
             </Tree>
@@ -225,7 +224,7 @@ class AllocationPermission extends Component<CreateFromProps, CreateFromState> {
               showLine
               checkable
               multiple
-              onCheck={(checkedKeys: any[]) => this.onCheck('interfaceList', checkedKeys)}
+              onCheck={(checkedKeys: ReactText[]) => this.onCheck('interfaceList', checkedKeys)}
             >
               {this.renderTree(menuTree, 1)}
             </Tree>
