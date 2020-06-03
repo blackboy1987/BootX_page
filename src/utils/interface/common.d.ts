@@ -3,6 +3,7 @@
  */
 export interface CommonTableListItem {
   id?: number;
+  createdDate?: Date;
 }
 
 /**

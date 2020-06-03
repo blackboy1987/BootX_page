@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { connect } from 'dva';
-import { Form, Input, Checkbox, message, Card, Button } from 'antd';
+import { Form, Input, message, Card, Button } from 'antd';
 import { FormInstance } from 'antd/lib/form';
-import { Dispatch, history } from 'umi';
+import { Dispatch, history, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { TableListItem } from '../data';
 import { StateType } from '../model';
@@ -11,7 +10,7 @@ const FormItem = Form.Item;
 
 interface CreateFromProps {
   submitting: boolean;
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   match: {
     params: {
       [key: string]: any;
@@ -61,16 +60,6 @@ class CreateFrom extends Component<CreateFromProps, CreateFromState> {
 
   render() {
     const { submitting } = this.props;
-    const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 6 },
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 18 },
-      },
-    };
 
     const submitFormLayout = {
       wrapperCol: {

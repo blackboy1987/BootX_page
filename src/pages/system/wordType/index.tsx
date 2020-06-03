@@ -15,33 +15,32 @@ import {
 import { PlusOutlined, ReloadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import React, { Component, Fragment } from 'react';
 
-import { Dispatch } from 'umi';
+import { Dispatch, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
 import moment from 'moment';
 import { FormInstance } from 'antd/lib/form';
 import { getSiteInfo, parseFormValues } from '@/utils/common';
+import CreateForm from '@/pages/system/wordType/components/CreateForm';
+import UpdateForm from '@/pages/system/wordType/components/UpdateForm';
 import { StateType } from './model';
 import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
 
 import { TableListItem } from './data.d';
 
 import styles from './style.less';
-import CreateForm from "@/pages/system/wordType/components/CreateForm";
-import UpdateForm from "@/pages/system/wordType/components/UpdateForm";
 
 const FormItem = Form.Item;
 
 interface TableListProps {
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   loading: boolean;
   wordType: StateType;
 }
 
 interface TableListState {
   selectedRows: TableListItem[];
-  addModalVisible:boolean;
-  record:TableListItem;
+  addModalVisible: boolean;
+  record: TableListItem;
 }
 
 class TableList extends Component<TableListProps, TableListState> {
@@ -50,7 +49,7 @@ class TableList extends Component<TableListProps, TableListState> {
   state: TableListState = {
     selectedRows: [],
     addModalVisible: false,
-    record:{}
+    record: {},
   };
 
   columns: StandardTableColumnProps[] = [
@@ -81,7 +80,7 @@ class TableList extends Component<TableListProps, TableListState> {
       width: 100,
       render: (text, record: TableListItem) => (
         <Fragment>
-          <a onClick={() => this.handleUpdateModalVisible(record,true,false)}>编辑</a>
+          <a onClick={() => this.handleUpdateModalVisible(record, true, false)}>编辑</a>
           <Divider type="vertical" />
           <a onClick={() => this.update(record, 'remove')}>删除</a>
         </Fragment>
@@ -182,7 +181,7 @@ class TableList extends Component<TableListProps, TableListState> {
           </Col>
           <Col md={8}>
             <FormItem label="添加时间" name="rangeDate">
-              <DatePicker.RangePicker separator="~" style={{width:'100%'}} />
+              <DatePicker.RangePicker separator="~" style={{ width: '100%' }} />
             </FormItem>
           </Col>
           <Col md={2}>
@@ -197,24 +196,24 @@ class TableList extends Component<TableListProps, TableListState> {
     );
   };
 
-  handleModalVisible=(flag:boolean,refresh:boolean)=>{
+  handleModalVisible = (flag: boolean, refresh: boolean) => {
     this.setState({
-      addModalVisible:!!flag,
-    })
-    if(refresh){
+      addModalVisible: !!flag,
+    });
+    if (refresh) {
       this.list({});
     }
-  }
+  };
 
-  handleUpdateModalVisible=(record:TableListItem,flag:boolean,refresh:boolean)=>{
+  handleUpdateModalVisible = (record: TableListItem, flag: boolean, refresh: boolean) => {
     this.setState({
       record,
-      addModalVisible:!!flag,
+      addModalVisible: !!flag,
     });
-    if(refresh){
+    if (refresh) {
       this.list({});
     }
-  }
+  };
 
   render() {
     const {
@@ -222,7 +221,7 @@ class TableList extends Component<TableListProps, TableListState> {
       loading,
     } = this.props;
 
-    const { selectedRows,addModalVisible,record} = this.state;
+    const { selectedRows, addModalVisible, record } = this.state;
     return (
       <PageHeaderWrapper title={false}>
         <Card bordered={false}>
@@ -232,7 +231,7 @@ class TableList extends Component<TableListProps, TableListState> {
               <Button
                 disabled={loading}
                 icon={<PlusOutlined />}
-                onClick={() => this.handleModalVisible(true,false)}
+                onClick={() => this.handleModalVisible(true, false)}
                 type="primary"
               >
                 新建
@@ -258,12 +257,23 @@ class TableList extends Component<TableListProps, TableListState> {
             />
           </div>
         </Card>
-        {
-          addModalVisible && <CreateForm modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleModalVisible(modalVisible,refresh)} />
-        }
-        {
-          record && Object.keys(record).length>0 && addModalVisible && <UpdateForm values={record} modalVisible={addModalVisible} onCancel={(modalVisible:boolean,refresh:boolean)=>this.handleUpdateModalVisible({},modalVisible,refresh)} />
-        }
+        {addModalVisible && (
+          <CreateForm
+            modalVisible={addModalVisible}
+            onCancel={(modalVisible: boolean, refresh: boolean) =>
+              this.handleModalVisible(modalVisible, refresh)
+            }
+          />
+        )}
+        {record && Object.keys(record).length > 0 && addModalVisible && (
+          <UpdateForm
+            values={record}
+            modalVisible={addModalVisible}
+            onCancel={(modalVisible: boolean, refresh: boolean) =>
+              this.handleUpdateModalVisible({}, modalVisible, refresh)
+            }
+          />
+        )}
       </PageHeaderWrapper>
     );
   }

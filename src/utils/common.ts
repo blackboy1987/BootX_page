@@ -1,4 +1,6 @@
 import moment, { Moment } from 'moment';
+import request from '@/utils/request';
+import constants from '@/utils/constants';
 import { message } from 'antd';
 import { SorterResult } from 'antd/lib/table/interface';
 import {
@@ -28,6 +30,54 @@ interface ListPagination {
     pageSize: number;
     total: number;
   };
+}
+
+const uuidChars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
+export const uuid = () => {
+  let r;
+  // eslint-disable-next-line no-shadow
+  const uuid = [];
+  // eslint-disable-next-line no-multi-assign
+  uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
+  uuid[14] = '4';
+
+  for (let i = 0; i < 36; i += 1) {
+    if (!uuid[i]) {
+      // eslint-disable-next-line no-bitwise
+      r = 0 | (Math.random() * 16);
+      // eslint-disable-next-line no-bitwise
+      uuid[i] = uuidChars[i === 19 ? (r & 0x3) | 0x8 : r];
+    }
+  }
+  return uuid.join('');
+};
+
+export function setSiteInfo(siteInfo1: { setting: {} }) {
+  const { setting = {} } = siteInfo1;
+  localStorage.setItem('setting', JSON.stringify(setting || {}));
+}
+export function siteInfo() {
+  request(`${constants.baseUrl}/setting/edit`, {
+    method: 'POST',
+  }).then((data) => {
+    localStorage.setItem('setting', JSON.stringify(data || {}));
+  });
+}
+
+export function getSiteInfo(key?: string) {
+  const settingStr = localStorage.getItem('setting');
+  if (key) {
+    return JSON.parse(settingStr || '{}')[`${key}`];
+  }
+  return JSON.parse(settingStr || '{}');
+}
+
+export function getAuthRoutes(callback?: any) {
+  request(`${constants.baseUrl}/auth_routes`, {
+    method: 'POST',
+  }).then((data: { [key: string]: any }) => {
+    callback(data);
+  });
 }
 
 export const YPMessage = (response: YPResult, callback?: Function): void => {

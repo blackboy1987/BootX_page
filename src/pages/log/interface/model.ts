@@ -1,8 +1,8 @@
 import { Reducer, Effect } from 'umi';
+import { parseListData } from '@/utils/common';
 import { list } from './service';
 
 import { TableListData, TableListItem } from './data.d';
-import { parseListData } from '@/utils/common';
 
 export interface StateType {
   data?: TableListData;
