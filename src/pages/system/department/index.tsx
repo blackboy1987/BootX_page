@@ -6,14 +6,14 @@ import { Dispatch, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import moment from 'moment';
 import { ColumnProps } from 'antd/es/table';
+import CreateForm from '@/pages/system/department/components/CreateForm';
+import UpdateForm from '@/pages/system/department/components/UpdateForm';
 import { StateType } from './model';
 import StandardTable from './components/StandardTable';
 
-import { DepartmentItem } from './data.d';
+import { TableListItem } from './data.d';
 
 import styles from './style.less';
-import CreateForm from '@/pages/system/department/components/CreateForm';
-import UpdateForm from '@/pages/system/department/components/UpdateForm';
 
 interface TableListProps {
   dispatch: Dispatch;
@@ -24,7 +24,7 @@ interface TableListProps {
 interface TableListState {
   addModalVisible: boolean;
   updateModalVisible: boolean;
-  record: DepartmentItem;
+  record: TableListItem;
 }
 
 class TableList extends Component<TableListProps, TableListState> {
@@ -34,7 +34,7 @@ class TableList extends Component<TableListProps, TableListState> {
     record: {},
   };
 
-  columns: ColumnProps<DepartmentItem>[] = [
+  columns: ColumnProps<TableListItem>[] = [
     {
       title: '名称',
       dataIndex: 'name',
@@ -65,7 +65,7 @@ class TableList extends Component<TableListProps, TableListState> {
     {
       title: '操作',
       width: 150,
-      render: (text, record: DepartmentItem) => (
+      render: (text, record: TableListItem) => (
         <Fragment>
           <a onClick={() => this.handleUpdateModalVisible(record, true, false)}>编辑</a>
           <Divider type="vertical" />
@@ -132,7 +132,7 @@ class TableList extends Component<TableListProps, TableListState> {
     }
   };
 
-  handleUpdateModalVisible = (record: DepartmentItem, flag: boolean, refresh: boolean) => {
+  handleUpdateModalVisible = (record: TableListItem, flag: boolean, refresh: boolean) => {
     this.setState({
       record,
       updateModalVisible: !!flag,
