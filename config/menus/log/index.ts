@@ -1,7 +1,7 @@
-import interface from './interface';
+import interface1 from './interface';
 
 export default {
   name: 'log',
   path: '/log',
-  routes: [interface],
+  routes: [interface1],
 };
