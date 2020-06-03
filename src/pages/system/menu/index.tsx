@@ -5,18 +5,17 @@ import React, { Component, Fragment, ReactText } from 'react';
 import { Dispatch, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import moment from 'moment';
-import { StateType } from './model';
-import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
-
-import { TableListItem } from './data.d';
 
 import CreateForm from '@/pages/system/menu/components/CreateForm';
 
-import styles from './style.less';
 import { handleStandardTableChange, TreeNodeItem } from '@/utils/common';
 import TreeNode from '@/pages/components/TreeNode';
 import { TableListPagination } from '@/pages/system/post/data';
 import { SorterResult } from 'antd/lib/table/interface';
+import styles from './style.less';
+import { TableListItem } from './data.d';
+import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
+import { StateType } from './model';
 
 interface TableListProps {
   dispatch: Dispatch;

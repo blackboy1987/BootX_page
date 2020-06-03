@@ -2,9 +2,8 @@ import { Button, Card, Col, Row, message, Tag, Modal, Divider, Tree } from 'antd
 import { PlusOutlined, ReloadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import React, { Component, Fragment } from 'react';
 
-import { Dispatch } from 'umi';
+import { Dispatch, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
 import moment from 'moment';
 import { getSiteInfo } from '@/utils/common';
 import { history } from '@@/core/history';
@@ -17,7 +16,7 @@ import { MenuTree, TableListItem } from './data.d';
 import styles from './style.less';
 
 interface TableListProps {
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   loading: boolean;
   permission: StateType;
 }
