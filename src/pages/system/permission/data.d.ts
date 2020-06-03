@@ -1,16 +1,21 @@
 /**
  * 列表展示的字段
  */
-export interface TableListItem {
-  id?: number;
+import {
+  CommonTableListData,
+  CommonTableListItem,
+  CommonTableListPagination,
+  CommonTableListParams,
+} from '@/utils/interface/common';
+
+export interface TableListItem extends CommonTableListItem {
   isEnabled?: boolean;
   isChecked?: boolean;
   type?: number;
   name?: string;
   memo?: string;
   urls?: string[];
-  createdDate?: Date;
-  menuName: string;
+  menuName?: string;
 }
 
 /**
@@ -25,13 +30,13 @@ export interface MenuTree {
 /**
  * 分页数据
  */
-export interface TableListPagination {
+export interface TableListPagination extends CommonTableListPagination {
   total: number;
   pageSize: number;
   current: number;
 }
 
-export interface TableListData {
+export interface TableListData extends CommonTableListData {
   list: TableListItem[];
   pagination: Partial<TableListPagination>;
 }
@@ -39,7 +44,7 @@ export interface TableListData {
 /**
  * 搜索的数据
  */
-export interface TableListParams {
+export interface TableListParams extends CommonTableListParams {
   id: null;
   sorter: string;
   status: string;
