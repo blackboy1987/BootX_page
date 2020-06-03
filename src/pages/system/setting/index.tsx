@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
-import { Dispatch, AnyAction } from 'umi';
+import { Dispatch, connect } from 'umi';
 import { StateType } from './model';
 
 interface TableListProps {
@@ -11,7 +10,7 @@ interface TableListProps {
       [key: string]: string;
     };
   };
-  dispatch: Dispatch<AnyAction>;
+  dispatch: Dispatch;
   loading: boolean;
   setting: StateType;
 }
