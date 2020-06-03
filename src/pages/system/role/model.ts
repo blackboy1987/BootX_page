@@ -1,5 +1,4 @@
-import { AnyAction, Reducer } from 'umi';
-import { EffectsCommandMap } from 'dva';
+import { Reducer, Effect } from 'umi';
 import {
   list,
   edit,
@@ -13,16 +12,12 @@ import {
 } from './service';
 
 import { TableListData, TableListItem } from './data.d';
+import { parseListData } from '@/utils/common';
 
 export interface StateType {
   data?: TableListData;
   value?: TableListItem;
 }
-
-export type Effect = (
-  action: AnyAction,
-  effects: EffectsCommandMap & { select: <T>(func: (state: StateType) => T) => T },
-) => void;
 
 export interface ModelType {
   namespace: string;
@@ -52,7 +47,6 @@ const Model: ModelType = {
       list: [],
       pagination: {},
     },
-    values: {},
   },
 
   effects: {
@@ -119,16 +113,12 @@ const Model: ModelType = {
 
   reducers: {
     listInfo(state, action) {
-      const { data = [], total = 0, current = 1, pageSize = 0 } = action.payload;
+      const { content, pagination } = parseListData(action.payload);
       return {
         ...state,
         data: {
-          list: data,
-          pagination: {
-            current,
-            pageSize,
-            total,
-          },
+          list: content,
+          pagination,
         },
       };
     },
