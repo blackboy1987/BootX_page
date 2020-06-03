@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { connect } from 'dva';
 import { Form, Input, Checkbox, message, TreeSelect, Card, Button } from 'antd';
 import { FormInstance } from 'antd/lib/form';
-import { Dispatch, history } from 'umi';
+import { Dispatch, history, connect } from 'umi';
 import { DepartmentTree } from '@/pages/system/department/data';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { TableListItem } from '../data';
@@ -12,7 +11,7 @@ const FormItem = Form.Item;
 
 interface CreateFromProps {
   submitting: boolean;
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   match: {
     params: {
       [key: string]: any;
