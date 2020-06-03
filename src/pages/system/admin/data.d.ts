@@ -1,8 +1,9 @@
 /**
  * 列表展示的字段
  */
-export interface TableListItem {
-  id: number;
+import { CommonTableListItem } from '@/utils/interface/common';
+
+export interface TableListItem extends CommonTableListItem {
   isEnabled?: boolean;
   name?: string;
   mobile?: string;
