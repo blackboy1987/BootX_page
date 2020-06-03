@@ -4,8 +4,7 @@ import React, { Component, Fragment } from 'react';
 import { DeleteOutlined } from '@ant-design/icons';
 
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
-import { Dispatch, AnyAction } from 'umi';
+import { Dispatch, connect } from 'umi';
 import MyAuthorized from '@/pages/MyAuthorized';
 import { StateType } from './model';
 import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
@@ -18,7 +17,7 @@ interface TableListProps {
       [key: string]: string;
     };
   };
-  dispatch: Dispatch<AnyAction>;
+  dispatch: Dispatch;
   loading: boolean;
   storagePlugin: StateType;
 }
