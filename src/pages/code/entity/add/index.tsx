@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { connect } from 'dva';
 import { Form, Input, message, Card, Button, Alert, Select, Radio } from 'antd';
 import { FormInstance } from 'antd/lib/form';
-import { Dispatch, history } from 'umi';
+import { Dispatch, history, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { TableListItem } from '../data';
 import { StateType } from '../model';
@@ -16,7 +15,7 @@ interface Project {
 
 interface CreateFromProps {
   submitting: boolean;
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   match: {
     params: {
       [key: string]: any;
