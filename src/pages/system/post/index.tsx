@@ -19,14 +19,14 @@ import {
   YPResult,
 } from '@/utils/common';
 import MyAuthorized from '@/pages/MyAuthorized';
+import CreateForm from '@/pages/system/post/components/CreateForm';
+import TreeNode from '@/pages/components/TreeNode';
 import { StateType } from './model';
 import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
-import CreateForm from '@/pages/system/post/components/CreateForm';
 
 import { TableListItem, TableListPagination } from './data.d';
 
 import styles from './style.less';
-import TreeNode from '@/pages/components/TreeNode';
 
 const FormItem = Form.Item;
 
