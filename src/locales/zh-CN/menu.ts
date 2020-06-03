@@ -99,4 +99,7 @@ export default {
   'menu.flow.deploy': '流程部署',
   'menu.flow.follow': '流程跟踪',
   'menu.flow.manager': '流程管理',
+
+  'menu.log': '日志监控',
+  'menu.log.interface': '接口日志',
 };
