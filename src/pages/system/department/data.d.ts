@@ -1,7 +1,9 @@
 /**
  * 列表展示的字段
  */
-export interface DepartmentItem {
+import { CommonTableListItem } from '@/utils/interface/common';
+
+export interface TableListItem extends CommonTableListItem {
   id?: number;
   name?: string;
   order?: number;
