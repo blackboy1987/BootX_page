@@ -1,17 +1,4 @@
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  Row,
-  message,
-  Tag,
-  Modal,
-  Select,
-  Divider,
-  DatePicker,
-} from 'antd';
+import { Button, Card, Col, Row, message, Tag, Modal, Divider } from 'antd';
 import {
   PlusOutlined,
   ReloadOutlined,
@@ -19,27 +6,26 @@ import {
   DeleteOutlined,
   UserAddOutlined,
 } from '@ant-design/icons';
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, ReactText } from 'react';
 
-import { Dispatch } from 'umi';
+import { Dispatch, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
 import moment from 'moment';
-import { FormInstance } from 'antd/lib/form';
-import { getSiteInfo, parseFormValues } from '@/utils/common';
-import { history } from '@@/core/history';
 import AllocationPermission from '@/pages/system/role/allocatePermission';
-import { StateType } from './model';
-import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
+import CreateForm from '@/pages/system/role/components/CreateForm';
 
-import { TableListItem } from './data.d';
-
+import { FormInstance } from 'antd/lib/form';
+import { handleStandardTableChange, parseFormValues, TreeNodeItem } from '@/utils/common';
+import { TableListPagination } from '@/pages/system/role/data';
+import { SorterResult } from 'antd/lib/table/interface';
+import TreeNode from '@/pages/components/TreeNode';
 import styles from './style.less';
-
-const FormItem = Form.Item;
+import { TableListItem } from './data.d';
+import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
+import { StateType } from './model';
 
 interface TableListProps {
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   loading: boolean;
   role: StateType;
 }
@@ -48,15 +34,23 @@ interface TableListState {
   selectedRows: TableListItem[];
   allocatePermissionModalVisible: boolean;
   allocatePermissionRecord: TableListItem;
+  addModalVisible: boolean;
+  updateModalVisible: boolean;
+  departmentTree: TreeNodeItem[];
+  record: TableListItem;
 }
 
 class TableList extends Component<TableListProps, TableListState> {
-  searchForm = React.createRef(FormInstance);
+  searchForm = React.createRef<FormInstance>();
 
   state: TableListState = {
     selectedRows: [],
     allocatePermissionModalVisible: false,
     allocatePermissionRecord: {},
+    addModalVisible: false,
+    updateModalVisible: false,
+    departmentTree: [],
+    record: {},
   };
 
   columns: StandardTableColumnProps[] = [
@@ -91,7 +85,7 @@ class TableList extends Component<TableListProps, TableListState> {
       width: 100,
       render: (text, record: TableListItem) => (
         <Fragment>
-          <a onClick={() => history.push(`/system/role/edit/${record.id}`)}>编辑</a>
+          <a onClick={() => this.handleUpdateModalVisible(record, true, false)}>编辑</a>
           <Divider type="vertical" />
           <a onClick={() => this.update(record, 'remove')}>删除</a>
         </Fragment>
@@ -101,7 +95,20 @@ class TableList extends Component<TableListProps, TableListState> {
 
   componentDidMount() {
     this.list({});
+    this.departmentTree();
   }
+
+  departmentTree = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'role/departmentTree',
+      callback: (response: TreeNodeItem[]) => {
+        this.setState({
+          departmentTree: response,
+        });
+      },
+    });
+  };
 
   list = (params: {}) => {
     const { dispatch } = this.props;
@@ -124,9 +131,6 @@ class TableList extends Component<TableListProps, TableListState> {
       }
       if (type1 === 'enabled') {
         return '您正在执行账号启用操作';
-      }
-      if (type1 === 'reset') {
-        return `您正在执行账户重置密码操作，密码将重置为${getSiteInfo('defaultPassword')}！！！`;
       }
       if (type1 === 'disabled') {
         return '您正在执行账号禁用操作';
@@ -166,47 +170,6 @@ class TableList extends Component<TableListProps, TableListState> {
     });
   };
 
-  handleSearch = (values: { [key: string]: any }) => {
-    this.list({
-      ...parseFormValues(values),
-    });
-  };
-
-  renderSimpleForm = () => {
-    return (
-      <Form ref={this.searchForm} onFinish={this.handleSearch}>
-        <Row gutter={16}>
-          <Col md={5}>
-            <FormItem label="角色名" name="name">
-              <Input placeholder="请输入" />
-            </FormItem>
-          </Col>
-          <Col md={4}>
-            <FormItem label="状态" name="isEnabled">
-              <Select>
-                <Select.Option value="">全部</Select.Option>
-                <Select.Option value="true">启用</Select.Option>
-                <Select.Option value="false">禁用</Select.Option>
-              </Select>
-            </FormItem>
-          </Col>
-          <Col md={8}>
-            <FormItem label="添加时间" name="rangeDate">
-              <DatePicker.RangePicker separator="~" />
-            </FormItem>
-          </Col>
-          <Col md={2}>
-            <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">
-                查询
-              </Button>
-            </span>
-          </Col>
-        </Row>
-      </Form>
-    );
-  };
-
   /**
    * 给角色分配权限
    */
@@ -233,66 +196,138 @@ class TableList extends Component<TableListProps, TableListState> {
     });
   };
 
+  handleModalVisible = (flag: boolean, refresh: boolean) => {
+    this.setState({
+      addModalVisible: !!flag,
+    });
+    if (refresh) {
+      this.list({});
+    }
+  };
+
+  handleUpdateModalVisible = (record: TableListItem, flag: boolean, refresh: boolean) => {
+    this.setState({
+      record,
+      updateModalVisible: !!flag,
+    });
+    if (refresh) {
+      this.list({});
+    }
+  };
+
+  handleStandardTableChange = (
+    pagination: Partial<TableListPagination>,
+    filtersArg: Record<keyof TableListItem, string[]>,
+    sorter: SorterResult<TableListItem>,
+  ) => {
+    this.list({
+      ...handleStandardTableChange(pagination, filtersArg, sorter),
+      ...parseFormValues(this.searchForm.current?.getFieldValue || {}),
+    });
+  };
+
+  onSelect = (selectedKeys: ReactText[]) => {
+    this.list({
+      departmentId: selectedKeys && selectedKeys.join(','),
+    });
+  };
+
   render() {
     const {
       role: { data },
       loading,
     } = this.props;
 
-    const { selectedRows, allocatePermissionModalVisible, allocatePermissionRecord } = this.state;
+    const {
+      selectedRows,
+      allocatePermissionModalVisible,
+      allocatePermissionRecord,
+      addModalVisible,
+      record,
+      updateModalVisible,
+      departmentTree,
+    } = this.state;
 
     return (
       <PageHeaderWrapper title={false}>
-        <Card bordered={false}>
-          <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderSimpleForm()}</div>
-            <div className={styles.tableListOperator}>
-              <Button
-                disabled={loading}
-                icon={<PlusOutlined />}
-                onClick={() => history.push('/system/role/add')}
-                type="primary"
-              >
-                新增
-              </Button>
-              <Button
-                title={loading || selectedRows.length === 0 ? '至少选择一条记录' : ''}
-                disabled={loading || selectedRows.length === 0}
-                icon={<DeleteOutlined />}
-                onClick={() => history.push('/system/role/add')}
-                type="danger"
-              >
-                删除
-              </Button>
-              <Button
-                title={loading || selectedRows.length === 0 ? '请选择一条记录' : ''}
-                disabled={loading || selectedRows.length === 0}
-                icon={<UserAddOutlined />}
-                onClick={this.allocatePermission}
-              >
-                权限分配
-              </Button>
-              <Button
-                disabled={loading}
-                icon={<ReloadOutlined />}
-                type="primary"
-                onClick={() => this.list({})}
-              >
-                刷新
-              </Button>
-            </div>
-            <StandardTable
-              bordered
-              size="small"
-              selectedRows={selectedRows}
-              loading={loading}
-              data={data}
-              columns={this.columns}
-              onSelectRow={this.handleSelectRows}
-              onChange={this.handleStandardTableChange}
-            />
-          </div>
-        </Card>
+        <Row>
+          <Col span={6}>
+            <Card bordered={false}>
+              <TreeNode
+                title="部门列表"
+                items={departmentTree}
+                onSelect={(selectedKeys: ReactText[]) => this.onSelect(selectedKeys)}
+              />
+            </Card>
+          </Col>
+          <Col span={18}>
+            <Card bordered={false}>
+              <div className={styles.tableList}>
+                <div className={styles.tableListOperator}>
+                  <Button
+                    disabled={loading}
+                    icon={<PlusOutlined />}
+                    onClick={() => this.handleModalVisible(true, false)}
+                    type="primary"
+                  >
+                    新增
+                  </Button>
+                  <Button
+                    title={loading || selectedRows.length === 0 ? '至少选择一条记录' : ''}
+                    disabled={loading || selectedRows.length === 0}
+                    icon={<DeleteOutlined />}
+                    type="danger"
+                  >
+                    删除
+                  </Button>
+                  <Button
+                    title={loading || selectedRows.length === 0 ? '请选择一条记录' : ''}
+                    disabled={loading || selectedRows.length === 0}
+                    icon={<UserAddOutlined />}
+                    onClick={this.allocatePermission}
+                  >
+                    权限分配
+                  </Button>
+                  <Button
+                    disabled={loading}
+                    icon={<ReloadOutlined />}
+                    type="primary"
+                    onClick={() => this.list({})}
+                  >
+                    刷新
+                  </Button>
+                </div>
+                <StandardTable
+                  bordered
+                  size="small"
+                  selectedRows={selectedRows}
+                  loading={loading}
+                  data={data}
+                  columns={this.columns}
+                  onSelectRow={this.handleSelectRows}
+                  onChange={this.handleStandardTableChange}
+                />
+              </div>
+            </Card>
+          </Col>
+        </Row>
+        {addModalVisible && (
+          <CreateForm
+            modalVisible={addModalVisible}
+            onCancel={(modalVisible: boolean, refresh: boolean) =>
+              this.handleModalVisible(modalVisible, refresh)
+            }
+          />
+        )}
+        {record && Object.keys(record).length > 0 && updateModalVisible && (
+          <CreateForm
+            record={record}
+            modalVisible={updateModalVisible}
+            onCancel={(modalVisible: boolean, refresh: boolean) =>
+              this.handleUpdateModalVisible({}, modalVisible, refresh)
+            }
+          />
+        )}
         {allocatePermissionModalVisible && Object.keys(allocatePermissionRecord).length > 0 ? (
           <AllocationPermission
             onClose={this.onClose}
