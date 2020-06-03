@@ -15,9 +15,8 @@ import {
 import { PlusOutlined, ReloadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import React, { Component, Fragment } from 'react';
 
-import { Dispatch } from 'umi';
+import { Dispatch, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
 import moment from 'moment';
 import { FormInstance } from 'antd/lib/form';
 import { getSiteInfo, parseFormValues } from '@/utils/common';
@@ -32,7 +31,7 @@ import styles from './style.less';
 const FormItem = Form.Item;
 
 interface TableListProps {
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   loading: boolean;
   word: StateType;
 }
@@ -42,7 +41,7 @@ interface TableListState {
 }
 
 class TableList extends Component<TableListProps, TableListState> {
-  searchForm = React.createRef(FormInstance);
+  searchForm = React.createRef<FormInstance>();
 
   state: TableListState = {
     selectedRows: [],
