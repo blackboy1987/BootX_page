@@ -2,8 +2,8 @@ import { Table } from 'antd';
 import { ColumnProps, TableProps } from 'antd/es/table';
 import React, { Component } from 'react';
 
-import { TableListItem } from '../../data.d';
 import styles from './index.less';
+import { TableListItem } from '@/pages/system/department/data';
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
