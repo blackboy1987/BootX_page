@@ -1,8 +1,8 @@
 import { Effect, Reducer } from 'umi';
+import { parseListData } from '@/utils/common';
 import { list, edit, save, remove, disabled, enabled, tree } from './service';
 
 import { TableListData, TableListItem } from './data.d';
-import { parseListData } from '@/utils/common';
 
 export interface StateType {
   data?: TableListData;
